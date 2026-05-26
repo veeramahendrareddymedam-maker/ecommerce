@@ -7,9 +7,43 @@ if(isset($_POST['place_order'])){
 
     if(isset($_SESSION['cart']) && !empty($_SESSION['cart'])){
 
-        unset($_SESSION['cart']);
+        $total = 0;
 
-        $message = "🎉 Order Placed Successfully!";
+// calculate total
+foreach($_SESSION['cart'] as $product_id => $quantity){
+
+    $result = mysqli_query($conn, "SELECT * FROM products WHERE id=$product_id");
+
+    $product = mysqli_fetch_assoc($result);
+
+    $total += $product['price'] * $quantity;
+}
+
+// insert into orders table
+mysqli_query($conn, "INSERT INTO orders(total) VALUES('$total')");
+
+// get last inserted order id
+$order_id = mysqli_insert_id($conn);
+
+// insert products into order_items
+foreach($_SESSION['cart'] as $product_id => $quantity){
+
+    $result = mysqli_query($conn, "SELECT * FROM products WHERE id=$product_id");
+
+    $product = mysqli_fetch_assoc($result);
+
+    $price = $product['price'];
+
+    mysqli_query($conn, "
+        INSERT INTO order_items(order_id, product_id, quantity, price)
+        VALUES('$order_id', '$product_id', '$quantity', '$price')
+    ");
+}
+
+// clear cart
+unset($_SESSION['cart']);
+
+$message = "🎉 Order Placed Successfully!";
     }
 }
 ?>
