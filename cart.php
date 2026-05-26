@@ -111,5 +111,9 @@ if(isset($_SESSION['cart'])){
 
 <h2>Total: ₹<?php echo $total; ?></h2>
 
+<a href="checkout.php">
+    <button>Proceed to Checkout</button>
+</a>
+
 </body>
 </html>
